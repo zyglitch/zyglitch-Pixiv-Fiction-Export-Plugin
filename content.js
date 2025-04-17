@@ -1,3 +1,4 @@
+//version 1.0.0
 // 在页面加载完成后立即执行，确保脚本已加载
 console.log('Pixiv小说导出工具: content.js 已加载');
 
