@@ -53,8 +53,14 @@ function downloadAsTxt(novelData) {
   
   txtContent += `正文：\n\n${content}`;
   
-  // 创建Blob对象
-  const blob = new Blob([txtContent], { type: 'text/plain;charset=utf-8' });
+  console.log('准备下载的TXT内容前50个字符:', txtContent.substring(0, 50));
+  
+  // 创建Blob对象，确保使用UTF-8编码
+  const encoder = new TextEncoder(); // 使用TextEncoder确保UTF-8编码
+  const encodedContent = encoder.encode(txtContent);
+  
+  // 添加BOM标记以确保Windows正确识别UTF-8
+  const blob = new Blob([new Uint8Array([0xEF, 0xBB, 0xBF]), encodedContent], { type: 'text/plain;charset=utf-8' });
   
   // 在Service Worker环境中，直接使用chrome.downloads.download API下载Blob数据
   // 避免使用URL.createObjectURL，因为在某些Service Worker环境中可能不可用

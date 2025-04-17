@@ -38,6 +38,7 @@ function extractNovelContent() {
                      document.querySelector('div[class*="title"]');
   const title = titleElement ? titleElement.textContent.trim() : '未知标题';
   console.log('找到标题:', title);
+  console.log('标题编码检查:', Array.from(title).map(c => c.charCodeAt(0).toString(16)).join(' '));
   
   // 提取作者名称
   const authorElement = document.querySelector('a[class^="sc-"][href^="/users/"]') ||
@@ -90,6 +91,22 @@ function extractNovelContent() {
     if (contentElement) console.log('找到内容元素: main');
   }
   
+  // 针对Pixiv最新版本的选择器
+  if (!contentElement) {
+    contentElement = document.querySelector('div[class*="novel-content"]');
+    if (contentElement) console.log('找到内容元素: div[class*="novel-content"]');
+  }
+  
+  if (!contentElement) {
+    contentElement = document.querySelector('div[class*="gtm-novel-viewer-content"]');
+    if (contentElement) console.log('找到内容元素: div[class*="gtm-novel-viewer-content"]');
+  }
+  
+  if (!contentElement) {
+    contentElement = document.querySelector('div[class*="viewer"] div[class*="content"]');
+    if (contentElement) console.log('找到内容元素: div[class*="viewer"] div[class*="content"]');
+  }
+  
   if (!contentElement) {
     // 记录页面HTML结构，帮助调试
     console.error('无法找到小说内容元素，记录页面结构:');
@@ -101,7 +118,12 @@ function extractNovelContent() {
   
   // 获取所有段落并合并
   // 使用更广泛的选择器来捕获所有可能的文本节点
-  const paragraphs = Array.from(contentElement.querySelectorAll('p, span, div > span, div > p, div[class*="text"], [class*="paragraph"]'));
+  const paragraphs = Array.from(contentElement.querySelectorAll('p, span, div > span, div > p, div[class*="text"], [class*="paragraph"], div[class*="content"] > div, div[class*="novel"] > div, div[class*="viewer"] > div'));
+  
+  // 记录找到的段落内容，帮助调试
+  if (paragraphs.length > 0) {
+    console.log('段落示例:', paragraphs.slice(0, 3).map(p => p.textContent.substring(0, 30)));
+  }
   console.log('找到段落数量:', paragraphs.length);
   
   let content = '';
@@ -109,11 +131,27 @@ function extractNovelContent() {
   // 如果没有找到段落，尝试直接获取内容元素的文本
   if (paragraphs.length === 0) {
     console.log('未找到段落，尝试直接获取内容元素文本');
-    content = contentElement.textContent.trim()
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .join('\n\n');
+    // 尝试获取所有文本节点
+    const textNodes = [];
+    const walker = document.createTreeWalker(contentElement, NodeFilter.SHOW_TEXT, null, false);
+    let node;
+    while (node = walker.nextNode()) {
+      const text = node.nodeValue.trim();
+      if (text.length > 0) {
+        textNodes.push(text);
+      }
+    }
+    
+    if (textNodes.length > 0) {
+      console.log('通过文本节点提取内容，找到节点数:', textNodes.length);
+      content = textNodes.join('\n\n');
+    } else {
+      content = contentElement.textContent.trim()
+        .split('\n')
+        .map(line => line.trim())
+        .filter(line => line.length > 0)
+        .join('\n\n');
+    }
   } else {
     content = paragraphs
       .map(p => p.textContent.trim())
