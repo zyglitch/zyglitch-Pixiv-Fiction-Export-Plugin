@@ -118,6 +118,7 @@ function extractNovelContent() {
   
   // 获取所有段落并合并
   // 使用更广泛的选择器来捕获所有可能的文本节点
+  // 获取所有段落并去重
   const paragraphs = Array.from(contentElement.querySelectorAll('p, span, div > span, div > p, div[class*="text"], [class*="paragraph"], div[class*="content"] > div, div[class*="novel"] > div, div[class*="viewer"] > div'));
   
   // 记录找到的段落内容，帮助调试
@@ -153,10 +154,16 @@ function extractNovelContent() {
         .join('\n\n');
     }
   } else {
-    content = paragraphs
-      .map(p => p.textContent.trim())
-      .filter(text => text.length > 0)
-      .join('\n\n');
+    // 使用Set去重
+    const uniqueParagraphs = new Set();
+    paragraphs.forEach(p => {
+      const text = p.textContent.trim();
+      if (text.length > 0) {
+        uniqueParagraphs.add(text);
+      }
+    });
+    
+    content = Array.from(uniqueParagraphs).join('\n\n');
   }
   
   console.log('提取的内容长度:', content.length);
