@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Pixiv小说导出工具",
+  "version": "1.0",
+  "description": "从Pixiv网站提取小说内容并转换为txt、epub等格式",
+  "permissions": ["activeTab", "scripting", "downloads"],
+  "host_permissions": ["*://www.pixiv.net/*"],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "images/icon16.png",
+      "48": "images/icon48.png",
+      "128": "images/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["*://www.pixiv.net/novel/show.php?id=*"],
+      "js": ["content.js"],
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  }
+}
