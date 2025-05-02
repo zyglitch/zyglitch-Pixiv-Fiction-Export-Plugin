@@ -8,6 +8,8 @@
       width: 300px;
       padding: 10px;
       font-family: Arial, sans-serif;
+      border-radius: 8px; /* 添加圆角 */
+      overflow: hidden; /* 确保内容不超出圆角 */
     }
     .container {
       display: flex;
@@ -38,6 +40,7 @@
       border-radius: 4px;
       cursor: pointer;
       margin-top: 10px;
+      transition: background-color 0.3s ease, opacity 0.3s ease; /* 添加过渡动画 */
     }
     button:hover {
       background-color: #0063b1;
@@ -46,6 +49,7 @@
       margin-top: 10px;
       font-size: 14px;
       color: #666;
+      transition: color 0.3s ease; /* 添加颜色过渡动画 */
     }
     .error {
       color: red;
